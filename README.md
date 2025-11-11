@@ -3,8 +3,6 @@
 Python scripts for collecting and analyzing data from the Y-PENG project.git
 
 
-scripts/
-scripts, research workflows, prototyping, data analysis
+Research scripts/workflows & data analysis jupyter notebooks in scripts/
 
-src/
-Production-quality, modular code, reusable library, multiple modules/packages
+Deployable Streamlit dashboard in dashboard/
