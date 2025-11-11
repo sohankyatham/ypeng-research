@@ -1,9 +1,11 @@
 *.csv
 *.xlsx
 *.tmp
+*.pyc
+/__pycache__/
+Notes
+learn.py
+/data/
+/docs/
 /results/
 /LabViewFiles/
-/__pycache__/
-*.pyc
-learn.py
-Notes
