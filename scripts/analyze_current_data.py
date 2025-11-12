@@ -14,3 +14,40 @@ OUTLINE:
 4. Find max, min, mean current value and find peak (max - min) & display results in tkinter window 
 5. In tkinter output window have option to save results in a file 
 '''
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import tkinter as tk
+
+
+'''
+Define functions - add implementation soon
+'''
+
+def get_filepath():
+    '''Get the .csv data file that needs to be analyzed'''
+    pass
+
+def load_data():
+    '''Load CSV data and return a pandas DataFrame'''
+    pass
+
+def analyze_current():
+    '''Return min, max, mean, and peak current values'''
+    pass
+
+def get_results():
+    '''Use tkinter to show analysis and have option to save'''
+    pass
+
+def save_results():
+    '''Save the results in a file'''
+    pass
+
+def main():
+    '''Main function to load, analyze, and save results'''
+    pass
+
+if __name__ == "__main__":
+    main()
