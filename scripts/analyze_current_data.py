@@ -46,7 +46,7 @@ def save_results():
     pass
 
 def main():
-    '''Main function to load, analyze, and save results'''
+    '''Entry Point: Main function to load, analyze, and save results'''
     pass
 
 if __name__ == "__main__":

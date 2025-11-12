@@ -5,3 +5,10 @@ This repository contains scripts for collecting, analyzing, and visualizing LabV
 Research scripts/workflows & data analysis jupyter notebooks in scripts/
 
 Deployable Streamlit dashboard in dashboard/
+
+
+
+- GUI-based CSV selection
+- Error handling in GUI (not terminal) 
+- Automatic visualization
+- Save Analysis Results
