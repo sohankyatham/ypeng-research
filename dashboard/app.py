@@ -12,7 +12,6 @@ This file manages UI layout, data handling, and visualization logic to deliver
 a complete, interactive analytical tool for research and presentation.
 '''
 
-
 import streamlit as st
 
 # Set the page title and layout
