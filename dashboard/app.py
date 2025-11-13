@@ -10,6 +10,9 @@ Allows researchers to upload, process, and visualize experimental data collected
 
 This file manages UI layout, data handling, and visualization logic to deliver 
 a complete, interactive analytical tool for research and presentation.
+
+RUN THIS CODE WITH:
+streamlit run dashboard/app.py --server.port 8502
 '''
 
 import streamlit as st
@@ -22,7 +25,7 @@ st.title("Piezoelectric Nanogenerator Data Dashboard")
 
 # Simple label or text
 st.write("Welcome to the interactive dashboard for analyzing yarn-based Piezoelectric Nanogenerator data!")
-st.info("This dashboard will later include plots, data uploads, and analytics.")
+st.info("This dashboard will soon include plots, data uploads, and analytics.")
 
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to:", ["Home", "Analyze Data", "Visualization", "Other tools will be added"])
+page = st.sidebar.radio("Go to:", ["Home", "Analyze Data", "Visualization", "Other tools will be added soon"])
