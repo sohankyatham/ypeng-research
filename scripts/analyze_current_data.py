@@ -53,6 +53,7 @@ def get_results():
     root = tk.Tk()
     root.title("Results")
     root.geometry("300x300")
+
     label = tk.Label(root, text=
         "Analysis Results\n" 
         "Minimum Current: \n"
@@ -63,6 +64,7 @@ def get_results():
 
     button = tk.Button(root, text="Save Results")
     button.pack()
+
     root.mainloop()
 
 def save_results():

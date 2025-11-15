@@ -23,6 +23,11 @@ st.set_page_config(page_title="YPENG Data Dashboard", layout="wide")
 # Title
 st.title("Piezoelectric Nanogenerator Data Dashboard")
 
+st.markdown("""
+Yarn-Based Piezoelectric Nanogenerator (YPENG) Dashboard  
+Easily upload, explore, and visualize your experimental data.
+""")
+
 # Simple label or text
 st.write("Welcome to the interactive dashboard for analyzing yarn-based Piezoelectric Nanogenerator data!")
 st.info("This dashboard will soon include plots, data uploads, and analytics.")
