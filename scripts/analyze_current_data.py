@@ -50,7 +50,20 @@ def analyze_current():
 def get_results():
     '''Use matplotlib & tkinter to show analysis and have option to save'''
     '''x-axis: Time (s) and y-axis: Current (μA)'''
-    pass
+    root = tk.Tk()
+    root.title("Results")
+    root.geometry("300x300")
+    label = tk.Label(root, text=
+        "Analysis Results\n" 
+        "Minimum Current: \n"
+        "Maximum Current: \n"
+        "Peak-to-peak Current:\n"
+    )
+    label.pack()
+
+    button = tk.Button(root, text="Save Results")
+    button.pack()
+    root.mainloop()
 
 def save_results():
     '''Save the results in a file'''
@@ -65,7 +78,7 @@ def launch_analysis_ui():
     label = tk.Label(root, text="Select a CSV file to analyze:")
     label.pack(pady=10)
 
-    select_button = tk.Button(root, text="Browse CSV", command=get_filepath)
+    select_button = tk.Button(root, text="Browse CSV", command=get_results)
     select_button.pack(pady=5)
 
     analyze_button = tk.Button(root, text="Analyze")
