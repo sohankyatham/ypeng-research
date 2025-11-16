@@ -92,6 +92,19 @@ with st.expander("ℹ️ How this Dashboard Works"):
     """)
 
 
+st.subheader("Quick Actions")
+
+col_q1, col_q2, col_q3 = st.columns(3)
+
+with col_q1:
+    st.button("Upload Dataset")
+
+with col_q2:
+    st.button("View Recent Files")
+
+with col_q3:
+    st.button("Generate Report")
+
 
 # Footer 
 st.markdown("---")
