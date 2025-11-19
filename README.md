@@ -12,7 +12,7 @@ Research scripts/workflows & data analysis jupyter notebooks in scripts/
 Deployable Streamlit dashboard in dashboard/
 
 
-**DEVELOPER NOTES FOR IMPROVEMENTS:**
+<u>**DEVELOPER NOTES FOR IMPROVEMENTS:**</u>
 
 app.py:
 - Fix navigation to say Home, Analyze, & Settings
