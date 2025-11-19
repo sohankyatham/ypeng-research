@@ -21,7 +21,6 @@ app.py:
 - Make the feature cards actionable links (i.e takes you to Analyze page when that card clicked)
 
 analyze_data_py:
-- Error when first opening page because no file for df
 - When you exit the page and return you need to reupload the file
 - Organize Summary Stats and add peak-to-peak (range)
 - Implement advanced features - normalize, remove outliers
