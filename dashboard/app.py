@@ -41,7 +41,7 @@ with metrics_col_models:
 col_upload, col_process, col_visualize = st.columns(3)
 
 with col_upload:
-    st.success("**Upload Data** \n\n Import CSV/Excel files for analysis.")
+    st.success("**Upload Data** \n\n Import CSV, Text, and Excel files for analysis.")
 
 with col_process:
     st.warning("**Process Data** \n\n Clean, filter, and transform your datasets.")
@@ -93,4 +93,4 @@ st.markdown(
 
 # Footer 
 st.markdown("---")
-st.markdown("© 2025 YPENG Research | Made by Sohan Kyatham ")
+st.markdown("© 2025 YPENG Research | Dashboard Made by Sohan Kyatham ")
