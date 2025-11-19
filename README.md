@@ -10,3 +10,12 @@ This repository contains scripts for collecting, analyzing, and visualizing data
 Research scripts/workflows & data analysis jupyter notebooks in scripts/
 
 Deployable Streamlit dashboard in dashboard/
+
+
+Developer Notes for Improvements:
+
+app.py:
+- Fix navigation to say Home, Analyze, & Settings
+- For metrics - Use dictionary to make more scalable and add more metrics
+- Make the feature cards actionable links (i.e takes you to Analyze page when that card clicked)
+- About Section: Make button have a hover effect 

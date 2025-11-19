@@ -22,7 +22,7 @@ st.title("Piezoelectric Nanogenerator Data Dashboard")
 st.info("Welcome to the interactive dashboard for analyzing yarn-based Piezoelectric Nanogenerator data!")
 
 
-# Dashboard Summary Metrics - 3 Column layout for metrics
+# --- Dashboard Summary Metrics - 3 Column layout for metrics ---
 # Use dictionary implementation to make this more scalable to add more metrics in the future
 metrics_col_datasets, metrics_col_visualizations, metrics_col_models = st.columns(3)
 
@@ -37,6 +37,7 @@ with metrics_col_models:
 
 
 # Feature Cards - three side-by-side columns
+# Make the feature cards actionable links
 col_upload, col_process, col_visualize = st.columns(3)
 
 with col_upload:
@@ -59,19 +60,22 @@ st.write("""
 """)
 
 
-# --- About Section ---
+# About Section 
 st.markdown("## 🔬 About Our Research")
 st.write("Learn more about the Innovative Materials Research Team.")
 
 # Button to redirect users to lab website
-if st.button("🌐 Visit the Website"):
-    st.markdown(
-        """
-        <meta http-equiv="refresh" content="0; 
-        url='https://your-lab-website-url.com'" />
-        """,
-        unsafe_allow_html=True
-    )
+# Add hover effect when hovering over the button
+st.markdown(
+"""
+<a href="https://www.fcs.uga.edu/tmi/innovative-materials-research-team" target="_blank">
+    <button style="font-size: 16px; border-radius: 10px; background-color: blue;">
+        🌐 Visit the Website
+    </button>
+</a>
+""",
+unsafe_allow_html=True
+)
 
 # Footer 
 st.markdown("---")
