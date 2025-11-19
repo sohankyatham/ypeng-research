@@ -59,6 +59,20 @@ st.write("""
 """)
 
 
+# --- About Section ---
+st.markdown("## 🔬 About Our Research")
+st.write("Learn more about the Innovative Materials Research Team.")
+
+# Button to redirect users to lab website
+if st.button("🌐 Visit the Website"):
+    st.markdown(
+        """
+        <meta http-equiv="refresh" content="0; 
+        url='https://your-lab-website-url.com'" />
+        """,
+        unsafe_allow_html=True
+    )
+
 # Footer 
 st.markdown("---")
-st.markdown("© 2025 YPENG Research | Made by Sohan Kyatham | Powered by Streamlit")
+st.markdown("© 2025 YPENG Research | Made by Sohan Kyatham ")
