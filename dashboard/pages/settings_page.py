@@ -22,7 +22,7 @@ st.title("⚙️ Settings - NOT IMPLEMENTED YET")
 
 st.write("Configure global preferences for data processing and visualization.")
 
-st.subheader("📊 Visualization Settings")
+st.subheader("📊 Visualization Settings - NOT IMPLEMENTED YET")
 theme = st.selectbox("Plot Theme - NOT IMPLEMENTED YET", ["Light", "Dark", "Auto"])
 line_width = st.slider("Default Line Width", 1, 10, 2)
 show_grid = st.checkbox("Show Gridlines", value=True)

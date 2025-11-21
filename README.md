@@ -16,6 +16,10 @@ Deployable Streamlit dashboard in dashboard/
 <br><br>
 **DEVELOPER NOTES FOR IMPROVEMENTS:**
 
+General:
+- Fix theme
+- Fix title for each tab
+
 app.py:
 - Fix navigation to say Home, Analyze, & Settings
 - For metrics - Use dictionary to make more scalable and add more metrics
@@ -24,7 +28,6 @@ app.py:
 
 analyze_data_py:
 - When you exit the page and return you need to reupload the file
-- Organize Summary Stats and add peak-to-peak (range)
 - Implement advanced features - normalize, remove outliers
 
 settings_page.py:
