@@ -78,7 +78,10 @@ with plot_tab:
 with raw_table_tab:
     st.dataframe(df)
 
+'''
 # Advanced Options
 with st.expander("Advanced Options - features not implemented yet"):
     normalize = st.checkbox("Normalize data")
     remove_outliers = st.checkbox("Remove outliers")
+
+'''

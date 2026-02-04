@@ -1,26 +1,9 @@
-'''
-VISUALIZATION settings
-Theme (light / dark / auto)
-
-Line thickness
-
-Show gridlines?
-
-Enable interactive hover info
-
-Default plot color scheme
-
-
-User Preferences
-Disable animations (for performance)
-'''
-
-
+# Settings Page for User Preferences
 import streamlit as st
 
-st.title("⚙️ Settings - NOT IMPLEMENTED YET")
+st.title("⚙️ Settings")
 
-st.write("Configure global preferences for data processing and visualization.")
+st.write("Configure global preferences for the dashboard.")
 
 st.subheader("📊 Visualization Settings - NOT IMPLEMENTED YET")
 theme = st.selectbox("Plot Theme - NOT IMPLEMENTED YET", ["Light", "Dark", "Auto"])

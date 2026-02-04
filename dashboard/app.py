@@ -1,4 +1,4 @@
-# YPENG Data Dashboard to display key metrics 
+# Homepage for YPENG Data Dashboard  
 '''
 Allows researchers to upload, process, and visualize experimental data collected from piezoelctric nanogenerator experiments.
 
@@ -7,9 +7,6 @@ Allows researchers to upload, process, and visualize experimental data collected
 3. Data preprocessing is performed using Pandas and NumPy.
 4. Processed data is displayed in various plots and summary tables.
 5. Users can filter, compare, and analyze results through the dashboard interface.
-
-RUN THIS CODE WITH:
-streamlit run dashboard/app.py --server.port 8502
 '''
 
 import streamlit as st
@@ -19,42 +16,40 @@ st.set_page_config(page_title="YPENG Data Dashboard", page_icon="⚡", layout="w
 
 # Title
 st.title("Piezoelectric Nanogenerator Data Dashboard")
-st.info("Welcome to the interactive dashboard for analyzing yarn-based Piezoelectric Nanogenerator data!")
-
-
-# --- Dashboard Summary Metrics - 3 Column layout for metrics ---
-# Use dictionary implementation to make this more scalable to add more metrics in the future
-metrics_col_datasets, metrics_col_visualizations, metrics_col_models = st.columns(3)
-
-with metrics_col_datasets:
-    st.metric("Datasets Uploaded", "0")
-
-with metrics_col_visualizations:
-    st.metric("Visualizations Created", "0")
-
-with metrics_col_models:
-    st.metric("Models Trained", "0")
+st.info("Welcome to the Y-PENG Data Dashboard! Upload experimental data to automatically compute key performance metrics and generate publication-ready plots.")
 
 
 # --- Feature Cards - three side-by-side columns ---
-# Make the feature cards actionable links
 col_upload, col_process, col_visualize = st.columns(3)
 
 with col_upload:
-    st.success("**Upload Data** \n\n Import CSV, Text, and Excel files for analysis.")
+    st.success("**Upload Data** \n\n Import CSV, text, and Excel files containing time‑series data for analysis")
 
 with col_process:
-    st.warning("**Process Data** \n\n Clean, filter, and transform your datasets.")
+    st.success("**Process Data** \n\n Inspect time-series data, remove bad rows, and prepare datasets for plotting.")
 
 with col_visualize:
-    st.info("**Visualize & Export Results** \n\n Generate voltage, current, and power plots.")
+    st.success("**Visualize & Export Results** \n\n Generate voltage, current, and power plots for Y-PENG devices.")
+
+
+# -- Get Started -- 
+st.subheader("Get started")
+
+# Analyze Data Page - Actionable Link
+st.page_link("pages/analyze_data_page.py", label="Go to Analyze Data ->", icon="📊")
+
+# Quick Guide
+with st.expander("Quick Guide", expanded=True):
+    st.write("1. Upload: Load your PENG dataset (time, voltage, current, etc.) via the Analyze Data page.")
+    st.write("2. Explore: Check row/column counts, missing values, and summary statistics.")
+    st.write("3. Visualize & export: Generate plots or view the raw table, then export results.")
 
 
 # --- About Section ---
 st.markdown("## 🔬 About Our Research")
 st.write("Learn more about the Innovative Materials Research Team.")
 
-# Button to redirect users to lab website
+# --- Button to redirect users to lab website ---
 # Custom CSS for hover effect
 st.markdown("""
 <style>
@@ -93,4 +88,4 @@ st.markdown(
 
 # Footer 
 st.markdown("---")
-st.markdown("© 2025 YPENG Research | Dashboard Made by Sohan Kyatham ")
+st.markdown("© Innovative Materials Team at The University of Georgia")
