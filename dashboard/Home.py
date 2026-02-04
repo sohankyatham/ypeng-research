@@ -36,7 +36,7 @@ with col_visualize:
 st.subheader("Get started")
 
 # Analyze Data Page - Actionable Link
-st.page_link("pages/analyze_data_page.py", label="Go to Analyze Data ->", icon="📊")
+st.page_link("pages/Analyze.py", label="Go to Analyze Data ->", icon="📊")
 
 # Quick Guide
 with st.expander("Quick Guide", expanded=True):
