@@ -1,6 +1,6 @@
 # Y-PENG Research: Data Analysis & Dashboard
 
-View the app - [https://ypeng-dashboard.streamlit.app/](https://ypeng-dashboard.streamlit.app/)
+View the app - [https://dashboard-ypeng.streamlit.app/](https://dashboard-ypeng.streamlit.app/)
 
 This repository contains scripts for collecting, analyzing, and visualizing data obtained through LabVIEW for the Y-PENG project, along with a deployable Streamlit dashboard to interactively explore the results.
 
