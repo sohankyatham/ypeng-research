@@ -46,7 +46,7 @@ with st.expander("Quick Guide", expanded=True):
 
 
 # --- About Section ---
-st.markdown("## 🔬 About Our Research")
+st.markdown("## 🔬 About")
 st.write("Learn more about the Innovative Materials Research Team.")
 
 # --- Button to redirect users to lab website ---
