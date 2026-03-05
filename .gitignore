@@ -1,12 +1,7 @@
-*.csv
-*.xlsx
+Notes.md
+/data/
+/LabViewFiles/
+example.csv
 *.tmp
 *.pyc
 /__pycache__/
-Notes
-learn.py
-/data/
-/docs/
-/results/
-/LabViewFiles/
-/test_scripts/
