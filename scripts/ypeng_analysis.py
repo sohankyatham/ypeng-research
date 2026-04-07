@@ -373,7 +373,24 @@ class YPENGApp(tk.Tk):
             "Use Save Figures to export PNGs.")
 
     def save_figures(self):
-        pass
+        if not self.results:
+            messagebox.showwarning("No results", "Run analysis first.")
+            return
+        
+        save_dir = filedialog.askdirectory(title="Select folder to save figures")
+        if not save_dir:
+            return
+        
+        build_figure_raw(self.results).savefig(
+            os.path.join(save_dir, "fig1_raw_trace.png"), dpi=200, bbox_inches="tight")
+        build_figure_vpp(self.results).savefig(
+            os.path.join(save_dir, "fig2_vpp_per_cycle.png"), dpi=200, bbox_inches="tight")
+        build_figure_summary(self.results).savefig(
+            os.path.join(save_dir, "fig3_summary_bar.png"), dpi=200, bbox_inches="tight")
+        plt.close("all")
+
+        messagebox.showinfo("Saved", f"3 figures saved to:\n{save_dir}")
+        self.status_var.set(f"Figures saved to {save_dir}")
 
 
     # -------------------------

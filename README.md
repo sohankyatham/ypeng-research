@@ -1,6 +1,8 @@
 # Y-PENG Research: Data Analysis & Dashboard
 
-View the app - [https://dashboard-ypeng.streamlit.app/](https://dashboard-ypeng.streamlit.app/)
+View the script for Analyzer: /scripts/ypeng_analysis.py
+
+View the dashboard web-app: [https://dashboard-ypeng.streamlit.app/](https://dashboard-ypeng.streamlit.app/)
 
 This repository contains scripts for collecting, analyzing, and visualizing data obtained through LabVIEW for the Y-PENG project, along with a deployable Streamlit dashboard to interactively explore the results.
 
@@ -18,3 +20,8 @@ Deployable Streamlit dashboard in dashboard/
 - Streamlit
 - Pandas
 - NumPy
+- Matplotlib
+
+
+# /scripts/ypeng_analysis.py
+- Main tool for analyzing statistical voltage variability of YPENG CSV data
