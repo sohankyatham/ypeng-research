@@ -9,6 +9,27 @@ import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+# -------------------------
+# ANALYSIS FUNCTIONS
+# -------------------------
+
+def load_csv(filepath):
+    pass
+
+def extract_vpp_per_window(voltage_array):
+    pass
+
+def compute_stats(vpps):
+    pass
+
+# Run full analysis pipeline on CSV files
+def analyze_files(filepaths):
+    pass
+
+
+# -------------------------
+# USER INTERFACE
+# -------------------------
 
 class YPENGApp(tk.Tk):
     def __init__(self):
@@ -20,11 +41,8 @@ class YPENGApp(tk.Tk):
 
         self.loaded_files = []   # list of filepath strings
         self.results      = []   # list of result dicts after analysis
-        
-        self.build_UI()
 
-    def do_nothing():
-        pass
+        self.build_UI()
 
     # Construct User Interface
     def build_UI(self):
@@ -42,9 +60,9 @@ class YPENGApp(tk.Tk):
         btn_frame.pack(side="right", padx=12)
 
         self.btn(btn_frame, "Add CSV Files", self.add_files, "#3a86ff").pack(side="left", padx=4)
-        self.btn(btn_frame, "Clear Files", self.do_nothing, "#6c757d").pack(side="left", padx=4)
-        self.btn(btn_frame, "Run Analysis", self.do_nothing, "#2dc653").pack(side="left", padx=4)
-        self.btn(btn_frame, "Save Figures", self.do_nothing, "#ff6b35").pack(side="left", padx=4)
+        self.btn(btn_frame, "Clear Files", self.clear_files, "#6c757d").pack(side="left", padx=4)
+        self.btn(btn_frame, "Run Analysis", self.run_analysis, "#2dc653").pack(side="left", padx=4)
+        self.btn(btn_frame, "Save Figures", self.save_figures, "#ff6b35").pack(side="left", padx=4)
 
         # Main Area: left panel & right tabs
         main = tk.Frame(self, bg="#f4f4f4")
@@ -167,7 +185,33 @@ class YPENGApp(tk.Tk):
         else:
             self.status_var.set("No new files added.")
 
+    def clear_files(self):
+        self.loaded_files.clear()
+        self.results.clear()
+        self.file_listbox.delete(0, "end")
+        for row in self.stats_tree.get_children():
+            self.stats_tree.delete(row)
+        self.status_var.set("Files cleared. Add new CSV files to begin.")
 
+    def run_analysis(self):
+        if not self.loaded_files:
+            messagebox.showwarning("No files", "Please add at least one CSV file first.")
+            return
+
+        self.status_var.set("Running analysis…")
+        self.update_idletasks()
+
+        try:
+            self.results = analyze_files(self.loaded_files)
+        except Exception as e:
+            messagebox.showerror("Analysis error", str(e))
+            self.status_var.set("Analysis failed — see error dialog.")
+            return
+
+        
+
+    def save_figures(self):
+        pass
 
     # ------ HELPER METHODS ------
     def btn(self, parent, text, command, bg):
