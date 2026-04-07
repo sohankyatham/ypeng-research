@@ -111,7 +111,34 @@ class YPENGApp(tk.Tk):
                     font=("Helvetica", 8), bg="#f4f4f4", fg="#888").pack(anchor="w", pady=2)
 
     def build_right_panel(self, parent):
-                pass        
+        # Create tabs
+        self.notebook = ttk.Notebook(parent)
+        self.notebook.pack(fill="both", expand=True)        
+
+        self.tab_vpp = tk.Frame(self.notebook, bg="white")
+        self.tab_raw = tk.Frame(self.notebook, bg="white")
+        self.tab_summary = tk.Frame(self.notebook, bg="white")
+
+        self.notebook.add(self.tab_vpp, text="  Cycle Vpp  ")
+        self.notebook.add(self.tab_raw, text="  Raw Signal  ")
+        self.notebook.add(self.tab_summary, text="  Summary Bar  ")
+
+        # Placeholder labels until analysis runs
+        for tab, msg in [
+            (self.tab_vpp,     "Run analysis to see cycle-by-cycle Vpp plot"),
+            (self.tab_raw,     "Run analysis to see raw voltage traces"),
+            (self.tab_summary, "Run analysis to see summary bar chart"),
+        ]:
+            tk.Label(tab, text=msg, font=("Helvetica", 11),
+                     fg="#aaa", bg="white").place(relx=0.5, rely=0.5, anchor="center")
+
+        self.canvas_vpp = None
+        self.canvas_raw = None
+        self.canvas_summary = None
+
+        
+
+
 
 
     # ------ HELPER METHODS ------
