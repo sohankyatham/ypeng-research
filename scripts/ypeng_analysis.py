@@ -8,23 +8,80 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+import pandas as pd
+import numpy as np
+
+
+# ----------------------------------
+# ANALYSIS SETTINGS
+# ----------------------------------
+
+# Sliding window: 100 samples × 0.02 s/sample = 2 seconds per window
+WINDOW_SAMPLES = 100
+STEP_SAMPLES   = 50    # 50% overlap
+
+COLORS = ["steelblue", "darkorange", "forestgreen", "crimson"]
+
+FIGURES_DIR = "figures"
+os.makedirs(FIGURES_DIR, exist_ok=True)
+
 
 # -------------------------
 # ANALYSIS FUNCTIONS
 # -------------------------
 
 def load_csv(filepath):
-    pass
+    # Read the metadata row to get Start and Increment
+    meta = pd.read_csv(filepath, nrows=1, header=0)
+    try:
+        time_start     = float(meta.columns[2])   # "Start" column header value
+        time_increment = float(meta.columns[3])   # "Increment" column header value
+    except (IndexError, ValueError):
+        # Fallback defaults if header format is different
+        time_start     = -11.78
+        time_increment =  0.02
+        
+     # Read the actual data rows
+    df = pd.read_csv(filepath, skiprows=1, usecols=[0, 1],
+                     names=["sample", "voltage"], header=0)
+    df["voltage"] = pd.to_numeric(df["voltage"], errors="coerce")
+    df = df.dropna().reset_index(drop=True)
+    df["time"] = time_start + df["sample"] * time_increment
+    return df
 
 def extract_vpp_per_window(voltage_array):
-    pass
+    vpps = [] # vpp = max - min
+    v = voltage_array
+    for i in range(0, len(v) - WINDOW_SAMPLES, STEP_SAMPLES):
+        seg = v[i : i + WINDOW_SAMPLES]
+        vpps.append(seg.max() - seg.min())
+    return np.array(vpps)
 
+# Compute and return the mean, sample standard deviation, and coefficient of variation (CV)
 def compute_stats(vpps):
-    pass
+    mean = np.mean(vpps)
+    std  = np.std(vpps, ddof=1)
+    cv   = (std / mean) * 100 if mean != 0 else float("nan")
+    return mean, std, cv
 
 # Run full analysis pipeline on CSV files
 def analyze_files(filepaths):
-    pass
+    results = []
+    for i, fp in enumerate(filepaths):
+        df             = load_csv(fp)
+        vpps           = extract_vpp_per_window(df["voltage"].values)
+        mean, std, cv  = compute_stats(vpps)
+        results.append({
+            "trial"    : i + 1,
+            "label"    : f"Trial {i + 1}",
+            "filename" : os.path.basename(fp),
+            "df"       : df,
+            "vpps"     : vpps,
+            "mean"     : mean,
+            "std"      : std,
+            "cv"       : cv,
+        })
+    return results
 
 
 # -------------------------
@@ -208,17 +265,42 @@ class YPENGApp(tk.Tk):
             self.status_var.set("Analysis failed — see error dialog.")
             return
 
-        
+        self.populate_stats_table()
+        self.draw_figures()
+        self.status_var.set(
+            f"Analysis complete — {len(self.results)} trial(s) processed. "
+            "Use Save Figures to export PNGs.")
 
     def save_figures(self):
         pass
 
-    # ------ HELPER METHODS ------
+
+    # -------------------------
+    # HELPER FUNCTIONS 
+    # -------------------------
+
     def btn(self, parent, text, command, bg):
         return tk.Button(parent, text=text, command=command,
                          bg=bg, fg="white", font=("Helvetica", 9, "bold"),
                          relief="flat", padx=10, pady=5, cursor="hand2",
                          activebackground=bg, activeforeground="white")
-# Create and run the app
-app = YPENGApp()
-app.mainloop()
+
+    def populate_stats_table(self):
+        for row in self.stats_tree.get_children():
+            self.stats_tree.delete(row)
+        for r in self.results:
+            self.stats_tree.insert("", "end", values=(
+                r["label"],
+                len(r["vpps"]),
+                f"{r['mean']:.4f} V",
+                f"{r['std']:.4f} V",
+                f"{r['cv']:.1f}%",
+            ))
+
+    def draw_figures(self):
+        pass
+
+# Entry point
+if __name__ == "__main__":
+    app = YPENGApp()
+    app.mainloop()
