@@ -5,8 +5,10 @@
 3. Compute statistics
 4. Visualize results (generate plots)
 '''
+import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+
 
 class YPENGApp(tk.Tk):
     def __init__(self):
@@ -16,6 +18,9 @@ class YPENGApp(tk.Tk):
         self.resizable(True, True)
         self.configure(bg="#f4f4f4")
 
+        self.loaded_files = []   # list of filepath strings
+        self.results      = []   # list of result dicts after analysis
+        
         self.build_UI()
 
     def do_nothing():
@@ -36,7 +41,7 @@ class YPENGApp(tk.Tk):
         btn_frame = tk.Frame(ctrl, bg="#2b2b2b")
         btn_frame.pack(side="right", padx=12)
 
-        self.btn(btn_frame, "Add CSV Files", self.do_nothing, "#3a86ff").pack(side="left", padx=4)
+        self.btn(btn_frame, "Add CSV Files", self.add_files, "#3a86ff").pack(side="left", padx=4)
         self.btn(btn_frame, "Clear Files", self.do_nothing, "#6c757d").pack(side="left", padx=4)
         self.btn(btn_frame, "Run Analysis", self.do_nothing, "#2dc653").pack(side="left", padx=4)
         self.btn(btn_frame, "Save Figures", self.do_nothing, "#ff6b35").pack(side="left", padx=4)
@@ -125,8 +130,8 @@ class YPENGApp(tk.Tk):
 
         # Placeholder labels until analysis runs
         for tab, msg in [
-            (self.tab_vpp,     "Run analysis to see cycle-by-cycle Vpp plot"),
-            (self.tab_raw,     "Run analysis to see raw voltage traces"),
+            (self.tab_vpp, "Run analysis to see cycle-by-cycle Vpp plot"),
+            (self.tab_raw, "Run analysis to see raw voltage traces"),
             (self.tab_summary, "Run analysis to see summary bar chart"),
         ]:
             tk.Label(tab, text=msg, font=("Helvetica", 11),
@@ -136,8 +141,31 @@ class YPENGApp(tk.Tk):
         self.canvas_raw = None
         self.canvas_summary = None
 
-        
+    # Button Callbacks
 
+    def add_files(self):
+        remaining = 4 - len(self.loaded_files)
+        if remaining <= 0:
+            messagebox.showwarning("Limit reached",
+                                "Maximum 4 CSV files. Clear files first to start over.")
+            return
+        fps = filedialog.askopenfilenames(
+        title=f"Select up to {remaining} CSV file(s)",
+        filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
+
+        added = 0
+        for fp in fps:
+            if len(self.loaded_files) >= 4:
+                break
+            if fp not in self.loaded_files:
+                self.loaded_files.append(fp)
+                self.file_listbox.insert("end", os.path.basename(fp))
+                added += 1
+
+        if added:
+            self.status_var.set(f"{added} file(s) added — {len(self.loaded_files)}/4 loaded. Click Run Analysis.")
+        else:
+            self.status_var.set("No new files added.")
 
 
 
