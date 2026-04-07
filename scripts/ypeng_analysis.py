@@ -10,6 +10,11 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import pandas as pd
 import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+matplotlib.use("TkAgg")
 
 
 # ----------------------------------
@@ -40,7 +45,7 @@ def load_csv(filepath):
         # Fallback defaults if header format is different
         time_start     = -11.78
         time_increment =  0.02
-        
+
      # Read the actual data rows
     df = pd.read_csv(filepath, skiprows=1, usecols=[0, 1],
                      names=["sample", "voltage"], header=0)
@@ -82,6 +87,102 @@ def analyze_files(filepaths):
             "cv"       : cv,
         })
     return results
+
+
+# -------------------------
+# BUILD FIGURES
+# -------------------------
+
+def build_figure_raw(results):
+    # Figure 1 - Raw voltage traces, one subplot per trial
+    n = len(results)
+    fig, axes = plt.subplots(n, 1, figsize=(9, 3.5 * n), sharex=False)
+    
+    if n == 1:
+        axes = [axes]
+    
+    for ax, r, color in zip(axes, results, COLORS):
+        ax.plot(r["df"]["time"], r["df"]["voltage"],
+                color=color, linewidth=0.8, alpha=0.9)
+        ax.axhline(0, color="gray", linewidth=0.6, linestyle="--")
+        ax.set_ylabel("Voltage (V)", fontsize=10)
+        ax.set_title(f"{r['label']} — {r['filename']}", fontsize=10, fontweight="bold")
+        ax.tick_params(labelsize=9)
+    
+    axes[-1].set_xlabel("Time (s)", fontsize=10)
+    fig.suptitle("Raw Oscilloscope Voltage Signals",
+                 fontsize=12, fontweight="bold")
+    fig.tight_layout(rect=[0, 0, 1, 0.97])
+    fig.subplots_adjust(hspace=0.55)
+    
+    return fig
+
+
+def build_figure_vpp(results):
+    # Figure 2 — Cycle-by-cycle Vpp with mean ± SD band (KEY figure)
+    n   = len(results)
+    fig, axes = plt.subplots(n, 1, figsize=(9, 3.5 * n), sharex=False)
+
+    if n == 1:
+        axes = [axes]
+
+    for ax, r, color in zip(axes, results, COLORS):
+        cycles = np.arange(1, len(r["vpps"]) + 1)
+        ax.plot(cycles, r["vpps"], "o-", color=color,
+                markersize=4, linewidth=1.2, alpha=0.85)
+        ax.axhline(r["mean"], color=color, linewidth=1.5, linestyle="--",
+                   label=f"Mean = {r['mean']:.3f} V")
+        ax.fill_between(cycles,
+                        r["mean"] - r["std"],
+                        r["mean"] + r["std"],
+                        color=color, alpha=0.12,
+                        label=f"±1 SD = {r['std']:.3f} V")
+        ax.set_ylabel("Vpp (V)", fontsize=10)
+        ax.set_title(f"{r['label']}  |  CV = {r['cv']:.1f}%",
+                     fontsize=10, fontweight="bold")
+        ax.legend(fontsize=8, loc="upper right")
+        ax.set_ylim(bottom=0)
+        ax.tick_params(labelsize=9)
+
+    axes[-1].set_xlabel("Window (Cycle Number)", fontsize=10)
+    fig.suptitle("Cycle-by-Cycle Peak-to-Peak Voltage (Vpp)",
+                 fontsize=12, fontweight="bold")
+    fig.tight_layout(rect=[0, 0, 1, 0.97])
+    fig.subplots_adjust(hspace=0.55)
+
+    return fig
+
+
+def build_figure_summary(results):
+    # Figure 3 - Summary bar chart: mean Vpp +/- SD with CV labeled
+    n = len(results)
+    labels = [r["label"] for r in results]
+    means = [r["mean"]  for r in results]
+    stds = [r["std"]   for r in results]
+    cvs = [r["cv"]    for r in results]
+
+    fig, ax = plt.subplots(figsize=(max(5, 2 * n + 2), 4.5))
+    x = np.arange(n)
+    bars = ax.bar(x, means, yerr=stds, capsize=6,
+                  color=COLORS[:n], alpha=0.80,
+                  error_kw={"linewidth": 1.8, "ecolor": "black"})
+    
+    for bar, std, cv in zip(bars, stds, cvs):
+        ax.text(bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + std + 0.003,
+                f"CV = {cv:.1f}%",
+                ha="center", va="bottom", fontsize=9, fontweight="bold")
+    
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=11)
+    ax.set_ylabel("Mean Vpp (V)", fontsize=12)
+    ax.set_title("Mean Peak-to-Peak Voltage per Trial\n(Error bars = ±1 SD)",
+                 fontsize=11, fontweight="bold")
+    ax.set_ylim(bottom=0)
+    ax.tick_params(labelsize=10)
+    fig.tight_layout()
+    
+    return fig
 
 
 # -------------------------
@@ -262,13 +363,13 @@ class YPENGApp(tk.Tk):
             self.results = analyze_files(self.loaded_files)
         except Exception as e:
             messagebox.showerror("Analysis error", str(e))
-            self.status_var.set("Analysis failed — see error dialog.")
+            self.status_var.set("Analysis failed - see error dialog.")
             return
 
         self.populate_stats_table()
         self.draw_figures()
         self.status_var.set(
-            f"Analysis complete — {len(self.results)} trial(s) processed. "
+            f"Analysis complete - {len(self.results)} trial(s) processed. "
             "Use Save Figures to export PNGs.")
 
     def save_figures(self):
@@ -297,8 +398,27 @@ class YPENGApp(tk.Tk):
                 f"{r['cv']:.1f}%",
             ))
 
+    # Render every figure into its notebook tab
     def draw_figures(self):
-        pass
+        for canvas_attr, tab, build_fn in [
+            ("canvas_vpp",     self.tab_vpp,     build_figure_vpp),
+            ("canvas_raw",     self.tab_raw,     build_figure_raw),
+            ("canvas_summary", self.tab_summary, build_figure_summary),
+        ]:
+            # Clear old canvas if re-running
+            old = getattr(self, canvas_attr)
+            if old:
+                old.get_tk_widget().destroy()
+
+            for widget in tab.winfo_children():
+                widget.destroy()
+
+            fig    = build_fn(self.results)
+            canvas = FigureCanvasTkAgg(fig, master=tab)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill="both", expand=True)
+            setattr(self, canvas_attr, canvas)
+            plt.close(fig)
 
 # Entry point
 if __name__ == "__main__":
