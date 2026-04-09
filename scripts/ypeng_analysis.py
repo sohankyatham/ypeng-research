@@ -205,6 +205,8 @@ class YPENGApp(tk.Tk):
 
         self.loaded_files = []   # list of filepath strings
         self.results      = []   # list of result dicts after analysis
+        self.current_files  = []
+        self.current_results = []
 
         self.build_UI()
 
@@ -224,6 +226,7 @@ class YPENGApp(tk.Tk):
         btn_frame.pack(side="right", padx=12)
 
         self.btn(btn_frame, "Add CSV Files", self.add_files, "#3a86ff").pack(side="left", padx=4)
+        self.btn(btn_frame, "Add Current Files", self.add_current_files, "#7b2ff7").pack(side="left", padx=4)
         self.btn(btn_frame, "Remove Selected", self.remove_selected, "#6c757d").pack(side="left", padx=4)
         self.btn(btn_frame, "Clear All", self.clear_files, "#6c757d").pack(side="left", padx=4)
         self.btn(btn_frame, "Run Analysis", self.run_analysis, "#2dc653").pack(side="left", padx=4)
@@ -315,16 +318,19 @@ class YPENGApp(tk.Tk):
         self.tab_vpp = tk.Frame(self.notebook, bg="white")
         self.tab_raw = tk.Frame(self.notebook, bg="white")
         self.tab_summary = tk.Frame(self.notebook, bg="white")
+        self.tab_current = tk.Frame(self.notebook, bg="white")
 
         self.notebook.add(self.tab_vpp, text="  Cycle Vpp  ")
         self.notebook.add(self.tab_raw, text="  Raw Signal  ")
         self.notebook.add(self.tab_summary, text="  Summary Bar  ")
+        self.notebook.add(self.tab_current, text="  Current (A)  ")
 
         # Placeholder labels until analysis runs
         for tab, msg in [
             (self.tab_vpp, "Run analysis to see cycle-by-cycle Vpp plot"),
             (self.tab_raw, "Run analysis to see raw voltage traces"),
             (self.tab_summary, "Run analysis to see summary bar chart"),
+            (self.tab_current, "Add current CSV files and click Run Current Analysis"),
         ]:
             tk.Label(tab, text=msg, font=("Helvetica", 11),
                      fg="#aaa", bg="white").place(relx=0.5, rely=0.5, anchor="center")
@@ -332,6 +338,7 @@ class YPENGApp(tk.Tk):
         self.canvas_vpp = None
         self.canvas_raw = None
         self.canvas_summary = None
+        self.canvas_current = None
 
     # Button Callbacks
 
@@ -434,6 +441,20 @@ class YPENGApp(tk.Tk):
                 f"{r['cv']:.1f}%",
             ))
 
+    def add_current_files(self):
+        fps = filedialog.askopenfilenames(
+            title="Select current CSV file(s) from sourcemeter",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
+        added = 0
+        for fp in fps:
+            if fp not in self.current_files:
+                self.current_files.append(fp)
+                added += 1
+        if added:
+            self.status_var.set(f"{added} current file(s) added — {len(self.current_files)} total. Click Run Current Analysis.")
+        else:
+            self.status_var.set("No new current files added.")
+            
     # Render every figure into its notebook tab
     def draw_figures(self):
         for canvas_attr, tab, build_fn in [
