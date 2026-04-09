@@ -93,6 +93,59 @@ def analyze_files(filepaths):
         })
     return results
 
+def load_current_csv(filepath):
+    # Sourcemeter format: tab-separated, no header, columns = time, current
+    df = pd.read_csv(filepath, sep='\t', header=None, names=['time', 'current'])
+    df['time']    = pd.to_numeric(df['time'],    errors='coerce')
+    df['current'] = pd.to_numeric(df['current'], errors='coerce')
+    df = df.dropna().reset_index(drop=True)
+    return df
+
+def analyze_current_files(filepaths):
+    results = []
+    for i, fp in enumerate(filepaths):
+        df   = load_current_csv(fp)
+        mean = df['current'].mean()
+        std  = df['current'].std(ddof=1)
+        peak = df['current'].abs().max()
+        cv   = (std / abs(mean)) * 100 if mean != 0 else float('nan')
+        results.append({
+            'trial'    : i + 1,
+            'label'    : f"Trial {i + 1}",
+            'filename' : os.path.basename(fp),
+            'df'       : df,
+            'mean'     : mean,
+            'std'      : std,
+            'peak'     : peak,
+            'cv'       : cv,
+            'color'    : COLORS[i % len(COLORS)],
+        })
+    return results
+
+def build_figure_current(results):
+    n   = len(results)
+    fig, axes = plt.subplots(n, 1, figsize=(9, 3.5 * n), sharex=False)
+    if n == 1:
+        axes = [axes]
+    for ax, r in zip(axes, results):
+        ax.plot(r['df']['time'], r['df']['current'],
+                color=r['color'], linewidth=0.8, alpha=0.9)
+        ax.axhline(0, color='gray', linewidth=0.6, linestyle='--')
+        ax.axhline(r['mean'], color=r['color'], linewidth=1.2, linestyle='--',
+                   label=f"Mean = {r['mean']:.4f} A")
+        ax.set_ylabel("Current (A)", fontsize=10)
+        ax.set_title(
+            f"{r['label']} — {r['filename']}  |  "
+            f"Peak = {r['peak']:.4f} A  |  CV = {r['cv']:.1f}%",
+            fontsize=10, fontweight='bold')
+        ax.legend(fontsize=8, loc='upper right')
+        ax.tick_params(labelsize=9)
+    axes[-1].set_xlabel("Time (s)", fontsize=10)
+    fig.suptitle("Sourcemeter Current Output", fontsize=12, fontweight='bold')
+    fig.tight_layout(rect=[0, 0, 1, 0.97])
+    fig.subplots_adjust(hspace=0.55)
+    return fig
+
 
 # -------------------------
 # BUILD FIGURES
@@ -230,6 +283,7 @@ class YPENGApp(tk.Tk):
         self.btn(btn_frame, "Remove Selected", self.remove_selected, "#6c757d").pack(side="left", padx=4)
         self.btn(btn_frame, "Clear All", self.clear_files, "#6c757d").pack(side="left", padx=4)
         self.btn(btn_frame, "Run Analysis", self.run_analysis, "#2dc653").pack(side="left", padx=4)
+        self.btn(btn_frame, "Run Current Analysis", self.run_current_analysis, "#7b2ff7").pack(side="left", padx=4)
         self.btn(btn_frame, "Save Figures", self.save_figures, "#ff6b35").pack(side="left", padx=4)
 
         # Main Area: left panel & right tabs
