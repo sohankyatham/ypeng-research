@@ -454,7 +454,60 @@ class YPENGApp(tk.Tk):
             self.status_var.set(f"{added} current file(s) added — {len(self.current_files)} total. Click Run Current Analysis.")
         else:
             self.status_var.set("No new current files added.")
-            
+    
+    def run_current_analysis(self):
+        if not self.current_files:
+            messagebox.showwarning("No files", "Please add current CSV files first.")
+            return
+        self.status_var.set("Analyzing current data...")
+        self.update_idletasks()
+        try:
+            self.current_results = analyze_current_files(self.current_files)
+        except Exception as e:
+            messagebox.showerror("Analysis error", str(e))
+            self.status_var.set("Current analysis failed — see error dialog.")
+            return
+        self.draw_current_figure()
+        self.status_var.set(f"Current analysis complete — {len(self.current_results)} trial(s) processed.")
+
+    def draw_current_figure(self):
+        tab = self.tab_current
+        old = self.canvas_current
+        if old:
+            old.get_tk_widget().destroy()
+        for widget in tab.winfo_children():
+            widget.destroy()
+
+        fig = build_figure_current(self.current_results)
+
+        scroll_y = tk.Scrollbar(tab, orient="vertical")
+        scroll_x = tk.Scrollbar(tab, orient="horizontal")
+        scroll_y.pack(side="right",  fill="y")
+        scroll_x.pack(side="bottom", fill="x")
+
+        tk_canvas = tk.Canvas(tab, yscrollcommand=scroll_y.set,
+                              xscrollcommand=scroll_x.set, bg="white")
+        tk_canvas.pack(side="left", fill="both", expand=True)
+        scroll_y.config(command=tk_canvas.yview)
+        scroll_x.config(command=tk_canvas.xview)
+
+        mpl_canvas = FigureCanvasTkAgg(fig, master=tk_canvas)
+        mpl_canvas.draw()
+        mpl_widget = mpl_canvas.get_tk_widget()
+        tk_canvas.create_window((0, 0), window=mpl_widget, anchor="nw")
+
+        def update_scrollregion(event, c=tk_canvas):
+            c.configure(scrollregion=c.bbox("all"))
+        mpl_widget.bind("<Configure>", update_scrollregion)
+
+        def on_mousewheel(event, c=tk_canvas):
+            c.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        tk_canvas.bind("<MouseWheel>", on_mousewheel)
+        mpl_widget.bind("<MouseWheel>", on_mousewheel)
+
+        self.canvas_current = mpl_canvas
+        plt.close(fig)
+
     # Render every figure into its notebook tab
     def draw_figures(self):
         for canvas_attr, tab, build_fn in [
