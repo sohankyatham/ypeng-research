@@ -269,8 +269,9 @@ class YPENGApp(tk.Tk):
                 bg="white", relief="flat", bd=1,
                 highlightthickness=1, highlightbackground="#ccc")
             scrollbar.config(command=self.file_listbox.yview)
-            self.file_listbox.pack(side="left", fill="x", expand=True)
+            self.file_listbox.pack(side="left", fill="both", expand=True)
             scrollbar.pack(side="right", fill="y")
+            list_frame.pack(fill="both", expand=True)
 
             tk.Label(parent, text="(Select any number of CSV files)",
                  font=("Helvetica", 8), bg="#f4f4f4", fg="#888").pack(anchor="w")
@@ -283,8 +284,15 @@ class YPENGApp(tk.Tk):
                     bg="#f4f4f4", fg="#222").pack(anchor="w", pady=(0, 4))
 
             cols = ("Trial", "Cycles", "Mean Vpp", "SD", "CV")
-            self.stats_tree = ttk.Treeview(parent, columns=cols,
-                                        show="headings", height=6)
+            tree_frame = tk.Frame(parent, bg="#f4f4f4")
+            tree_frame.pack(fill="x")
+
+            tree_scroll = tk.Scrollbar(tree_frame, orient="vertical")
+            self.stats_tree = ttk.Treeview(tree_frame, columns=cols,
+                                        show="headings", height=6,
+                                        yscrollcommand=tree_scroll.set)
+            tree_scroll.config(command=self.stats_tree.yview)
+
             for col, width in zip(cols, [48, 52, 78, 64, 58]):
                 self.stats_tree.heading(col, text=col)
                 self.stats_tree.column(col, width=width, anchor="center")
@@ -293,7 +301,8 @@ class YPENGApp(tk.Tk):
             style.configure("Treeview", font=("Helvetica", 9), rowheight=22)
             style.configure("Treeview.Heading", font=("Helvetica", 9, "bold"))
 
-            self.stats_tree.pack(fill="x")
+            self.stats_tree.pack(side="left", fill="x", expand=True)
+            tree_scroll.pack(side="right", fill="y")
 
             tk.Label(parent, text="Mean Vpp / SD in Volts · CV in %",
                     font=("Helvetica", 8), bg="#f4f4f4", fg="#888").pack(anchor="w", pady=2)
@@ -432,19 +441,49 @@ class YPENGApp(tk.Tk):
             ("canvas_raw",     self.tab_raw,     build_figure_raw),
             ("canvas_summary", self.tab_summary, build_figure_summary),
         ]:
-            # Clear old canvas if re-running
+            # Clear old widgets if re-running
             old = getattr(self, canvas_attr)
             if old:
                 old.get_tk_widget().destroy()
-
             for widget in tab.winfo_children():
                 widget.destroy()
 
-            fig    = build_fn(self.results)
-            canvas = FigureCanvasTkAgg(fig, master=tab)
-            canvas.draw()
-            canvas.get_tk_widget().pack(fill="both", expand=True)
-            setattr(self, canvas_attr, canvas)
+            # Build figure
+            fig = build_fn(self.results)
+            n   = len(self.results)
+
+            # Scrollable container
+            scroll_y = tk.Scrollbar(tab, orient="vertical")
+            scroll_x = tk.Scrollbar(tab, orient="horizontal")
+            scroll_y.pack(side="right",  fill="y")
+            scroll_x.pack(side="bottom", fill="x")
+
+            tk_canvas = tk.Canvas(tab,
+                                  yscrollcommand=scroll_y.set,
+                                  xscrollcommand=scroll_x.set,
+                                  bg="white")
+            tk_canvas.pack(side="left", fill="both", expand=True)
+            scroll_y.config(command=tk_canvas.yview)
+            scroll_x.config(command=tk_canvas.xview)
+
+            # Embed matplotlib figure into the tk canvas
+            mpl_canvas = FigureCanvasTkAgg(fig, master=tk_canvas)
+            mpl_canvas.draw()
+            mpl_widget = mpl_canvas.get_tk_widget()
+            tk_canvas.create_window((0, 0), window=mpl_widget, anchor="nw")
+
+            # Update scroll region once the widget is drawn
+            def update_scrollregion(event, c=tk_canvas):
+                c.configure(scrollregion=c.bbox("all"))
+            mpl_widget.bind("<Configure>", update_scrollregion)
+
+            # Mouse wheel scrolling
+            def on_mousewheel(event, c=tk_canvas):
+                c.yview_scroll(int(-1 * (event.delta / 120)), "units")
+            tk_canvas.bind("<MouseWheel>", on_mousewheel)
+            mpl_widget.bind("<MouseWheel>", on_mousewheel)
+
+            setattr(self, canvas_attr, mpl_canvas)
             plt.close(fig)
 
 # Entry point
