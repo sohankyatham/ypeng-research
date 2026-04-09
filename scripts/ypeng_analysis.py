@@ -25,7 +25,11 @@ matplotlib.use("TkAgg")
 WINDOW_SAMPLES = 100
 STEP_SAMPLES   = 50    # 50% overlap
 
-COLORS = ["steelblue", "darkorange", "forestgreen", "crimson"]
+COLORS = [
+    "steelblue", "darkorange", "forestgreen", "crimson",
+    "mediumpurple", "saddlebrown", "deeppink", "teal",
+    "goldenrod", "slategray"
+]
 
 FIGURES_DIR = "figures"
 os.makedirs(FIGURES_DIR, exist_ok=True)
@@ -85,6 +89,7 @@ def analyze_files(filepaths):
             "mean"     : mean,
             "std"      : std,
             "cv"       : cv,
+            "color"    : COLORS[i % len(COLORS)],
         })
     return results
 
@@ -101,9 +106,9 @@ def build_figure_raw(results):
     if n == 1:
         axes = [axes]
     
-    for ax, r, color in zip(axes, results, COLORS):
+    for ax, r in zip(axes, results):
         ax.plot(r["df"]["time"], r["df"]["voltage"],
-                color=color, linewidth=0.8, alpha=0.9)
+                color=r["color"], linewidth=0.8, alpha=0.9)
         ax.axhline(0, color="gray", linewidth=0.6, linestyle="--")
         ax.set_ylabel("Voltage (V)", fontsize=10)
         ax.set_title(f"{r['label']} — {r['filename']}", fontsize=10, fontweight="bold")
@@ -126,16 +131,16 @@ def build_figure_vpp(results):
     if n == 1:
         axes = [axes]
 
-    for ax, r, color in zip(axes, results, COLORS):
+    for ax, r in zip(axes, results):
         cycles = np.arange(1, len(r["vpps"]) + 1)
-        ax.plot(cycles, r["vpps"], "o-", color=color,
+        ax.plot(cycles, r["vpps"], "o-", color=r["color"],
                 markersize=4, linewidth=1.2, alpha=0.85)
-        ax.axhline(r["mean"], color=color, linewidth=1.5, linestyle="--",
+        ax.axhline(r["mean"], color=r["color"], linewidth=1.5, linestyle="--",
                    label=f"Mean = {r['mean']:.3f} V")
         ax.fill_between(cycles,
                         r["mean"] - r["std"],
                         r["mean"] + r["std"],
-                        color=color, alpha=0.12,
+                        color=r["color"], alpha=0.12,
                         label=f"±1 SD = {r['std']:.3f} V")
         ax.set_ylabel("Vpp (V)", fontsize=10)
         ax.set_title(f"{r['label']}  |  CV = {r['cv']:.1f}%",
@@ -163,8 +168,9 @@ def build_figure_summary(results):
 
     fig, ax = plt.subplots(figsize=(max(5, 2 * n + 2), 4.5))
     x = np.arange(n)
+    colors = [r["color"] for r in results]
     bars = ax.bar(x, means, yerr=stds, capsize=6,
-                  color=COLORS[:n], alpha=0.80,
+                  color=colors, alpha=0.80,
                   error_kw={"linewidth": 1.8, "ecolor": "black"})
     
     for bar, std, cv in zip(bars, stds, cvs):
@@ -218,7 +224,8 @@ class YPENGApp(tk.Tk):
         btn_frame.pack(side="right", padx=12)
 
         self.btn(btn_frame, "Add CSV Files", self.add_files, "#3a86ff").pack(side="left", padx=4)
-        self.btn(btn_frame, "Clear Files", self.clear_files, "#6c757d").pack(side="left", padx=4)
+        self.btn(btn_frame, "Remove Selected", self.remove_selected, "#6c757d").pack(side="left", padx=4)
+        self.btn(btn_frame, "Clear All", self.clear_files, "#6c757d").pack(side="left", padx=4)
         self.btn(btn_frame, "Run Analysis", self.run_analysis, "#2dc653").pack(side="left", padx=4)
         self.btn(btn_frame, "Save Figures", self.save_figures, "#ff6b35").pack(side="left", padx=4)
 
@@ -265,7 +272,7 @@ class YPENGApp(tk.Tk):
             self.file_listbox.pack(side="left", fill="x", expand=True)
             scrollbar.pack(side="right", fill="y")
 
-            tk.Label(parent, text="(up to 4 CSV files)",
+            tk.Label(parent, text="(Select any number of CSV files)",
                  font=("Helvetica", 8), bg="#f4f4f4", fg="#888").pack(anchor="w")
 
             # Divider
@@ -320,26 +327,19 @@ class YPENGApp(tk.Tk):
     # Button Callbacks
 
     def add_files(self):
-        remaining = 4 - len(self.loaded_files)
-        if remaining <= 0:
-            messagebox.showwarning("Limit reached",
-                                "Maximum 4 CSV files. Clear files first to start over.")
-            return
         fps = filedialog.askopenfilenames(
-        title=f"Select up to {remaining} CSV file(s)",
+        title=f"Select CSV file(s)",
         filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
 
         added = 0
         for fp in fps:
-            if len(self.loaded_files) >= 4:
-                break
             if fp not in self.loaded_files:
                 self.loaded_files.append(fp)
                 self.file_listbox.insert("end", os.path.basename(fp))
                 added += 1
 
         if added:
-            self.status_var.set(f"{added} file(s) added — {len(self.loaded_files)}/4 loaded. Click Run Analysis.")
+            self.status_var.set(f"{added} file(s) added — {len(self.loaded_files)} loaded. Click Run Analysis.")
         else:
             self.status_var.set("No new files added.")
 
@@ -350,6 +350,16 @@ class YPENGApp(tk.Tk):
         for row in self.stats_tree.get_children():
             self.stats_tree.delete(row)
         self.status_var.set("Files cleared. Add new CSV files to begin.")
+
+    def remove_selected(self):
+        selected = list(self.file_listbox.curselection())
+        if not selected:
+            messagebox.showinfo("Nothing selected", "Click a file in the list first.")
+            return
+        for i in reversed(selected):
+            self.file_listbox.delete(i)
+            del self.loaded_files[i]
+        self.status_var.set(f"Removed {len(selected)} file(s). {len(self.loaded_files)} remaining.")
 
     def run_analysis(self):
         if not self.loaded_files:
